@@ -6,10 +6,10 @@ module Ruboty
     module Actions
       class Find < Ruboty::Actions::Base
         def call(target_date)
-          touban = find_touban_on(target_date)
+          row = find_row_by(target_date)
 
-          if touban
-            message.reply(touban.join(' '))
+          if row
+            message.reply(row.join(' '))
           else
             message.reply('Not Found')
           end
@@ -17,7 +17,7 @@ module Ruboty
 
         private
 
-        def find_touban_on(date)
+        def find_row_by(date)
           spreadsheet.worksheet.rows.find { |row| row.include?(date) }
         end
 
