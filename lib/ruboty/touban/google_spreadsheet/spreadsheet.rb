@@ -14,7 +14,6 @@ module Ruboty
             redirect_uri: ENV['TOUBAN_GOOGLE_REDIRECT_URI'],
             refresh_token: ENV['TOUBAN_GOOGLE_REFRESH_TOKEN']
           )
-          @client.authorize!
         end
 
         def worksheet
@@ -28,7 +27,7 @@ module Ruboty
         end
 
         def session
-          @session ||= GoogleDrive.login_with_oauth(@client.access_token)
+          @session ||= @client.authorize!
         end
       end
     end

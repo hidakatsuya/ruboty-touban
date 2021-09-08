@@ -1,38 +1,27 @@
-require 'google/api_client'
-
 module Ruboty
   module Touban
     module GoogleSpreadsheet
       class Client
-        SCOPE = 'https://www.googleapis.com/auth/drive'
+        SCOPE = %w(
+          https://www.googleapis.com/auth/drive
+          https://spreadsheets.google.com/feeds/
+        ).freeze
 
         def initialize(client_id:, client_secret:, redirect_uri:, refresh_token:)
-          @authorization = api_client.authorization
-          @authorization.client_id = client_id
-          @authorization.client_secret = client_secret
-          @authorization.scope = SCOPE
-          @authorization.redirect_uri = redirect_uri
+          @credentials = Google::Auth::UserRefreshCredentials.new(
+            client_id: client_id,
+            client_secret: client_secret,
+            scope: SCOPE,
+            redirect_uri: redirect_uri
+          )
           @refresh_token = refresh_token
         end
 
         def authorize!
-          @authorization.refresh_token = @refresh_token
-          @authorization.fetch_access_token!
-          @refresh_token = @authorization.refresh_token
-        end
+          @credentials.refresh_token = @refresh_token
+          @credentials.fetch_access_token!
 
-        def access_token
-          @authorization.access_token
-        end
-
-        private
-
-        # FIXME: Migrate to GoogleDrive APIv3
-        def api_client
-          @api_client ||= Google::APIClient.new(
-            application_name: 'ruboty-touban',
-            application_version: Ruboty::Touban::VERSION
-          )
+          GoogleDrive::Session.from_credentials(@credentials)
         end
       end
     end
